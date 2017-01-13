@@ -36,4 +36,20 @@ describe Journey do
       end
     end
   end
+  describe "#fare" do
+    it "responds to the fare method" do
+      expect(journey).to respond_to(:fare)
+    end
+    context "when we have both entry and exit stations" do
+      it "returns the minimum fare" do
+        journey.finish("Aldgate East")
+        expect(journey.fare).to eq Journey::MIN_FARE
+      end
+    end
+    context "when we dont have an entry_station" do
+      it "returns the penalty fare" do
+        expect(journey.fare).to eq Journey::PENALTY_FARE
+      end
+    end
+  end
 end
