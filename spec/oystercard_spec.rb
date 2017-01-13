@@ -4,13 +4,10 @@ describe Oystercard do
   subject(:card) { described_class.new}
   let(:station) {double :station}
   let(:station2) {double :station}
+  let(:journey) {double :journey}
 
   it 'initialises with a balance of 0' do
     expect(card.balance).to eq 0
-  end
-
-  it 'initialises with an entry station of nil' do
-    expect(card.entry_station).to be_falsey
   end
 
   it 'initialises with an empty journey history' do
@@ -27,31 +24,19 @@ describe '#top_up' do
   end
 end
 
-describe '#in_journey?' do
-  it 'checks whether the card is in use or not' do
-    expect(card.in_journey?).to be_falsey
-  end
-end
-
   describe '#touch_in' do
     it 'checks that the card responds to the touch_in method' do
       expect(card).to respond_to(:touch_in)
-  end
-
-    it 'changes in_journey? to true' do
-      card.top_up(Oystercard::MIN_FARE)
-      card.touch_in(station)
-      expect(card.in_journey?).to be_truthy
   end
 
   it 'raises an error if insufficient balance on card' do
     expect{card.touch_in(station)}.to raise_error("Insufficient funds on card. Top up!")
   end
 
-  it 'remembers entry station after touch_in' do
+  it 'creates a new journey object' do
     card.top_up(Oystercard::MIN_FARE)
     card.touch_in(station)
-    expect(card.entry_station).to eq(station)
+    expect(card.journey).not_to be_nil
   end
 
 end
@@ -62,10 +47,11 @@ end
     end
 
     it 'changes in_journey? to false' do
+      allow(journey).to receive(:complete?).and_return(false)
       card.top_up(Oystercard::MIN_FARE)
       card.touch_in(station)
       card.touch_out(station2)
-      expect(card.in_journey?).to be_falsey
+      expect(card.journey.complete?).to be_falsey
   end
 
     it 'deducts the MIN_FARE when we touch out' do
